@@ -244,46 +244,135 @@ const Dashboard = ({ data }) => {
                                     cursor={{ fill: '#334155', opacity: 0.2 }}
                                     contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', borderRadius: '12px', color: '#f1f5f9' }}
                                 />
-                                <Bar dataKey="count" fill="#f472b6" radius={[4, 4, 0, 0]} />
+                                <Bar dataKey="count" fill="#f472b6" radius={[4, 4, 0, 0]} barSize={20} />
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
                 </motion.div>
             </div>
 
-            {/* Advanced Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-slate-800/50 p-4 rounded-2xl border border-slate-700/50">
-                    <h4 className="text-slate-400 text-xs uppercase tracking-wider mb-2">Conversation Starter</h4>
-                    <div className="text-lg font-bold text-white truncate">
-                        {Object.entries(data.conversationStarters).sort(([, a], [, b]) => b - a)[0]?.[0] || 'N/A'}
+            {/* Rankings Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {/* Conversation Starters Ranking */}
+                <div className="bg-slate-800/50 p-5 rounded-2xl border border-slate-700/50 flex flex-col h-[320px]">
+                    <h4 className="text-slate-400 text-xs uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <MessageSquare className="w-4 h-4 text-blue-400" /> Conversation Starters
+                    </h4>
+                    <div className="overflow-y-auto pr-2 space-y-3 custom-scrollbar flex-1">
+                        {Object.entries(data.conversationStarters)
+                            .sort(([, a], [, b]) => b - a)
+                            .map(([user, count], i) => (
+                                <div key={user} className="flex items-center justify-between p-2 hover:bg-slate-700/30 rounded-lg transition-colors">
+                                    <div className="flex items-center gap-3">
+                                        <span className={`text-xs font-mono w-5 h-5 flex items-center justify-center rounded-full ${i < 3 ? 'bg-blue-500/20 text-blue-300' : 'text-slate-500'}`}>
+                                            {i + 1}
+                                        </span>
+                                        <span className="text-sm text-slate-200 font-medium truncate max-w-[100px]">{user}</span>
+                                    </div>
+                                    <span className="text-sm font-bold text-slate-400">{count}</span>
+                                </div>
+                            ))}
                     </div>
-                    <div className="text-xs text-slate-500 mt-1">Initiated most chats</div>
-                </div>
-                <div className="bg-slate-800/50 p-4 rounded-2xl border border-slate-700/50">
-                    <h4 className="text-slate-400 text-xs uppercase tracking-wider mb-2">Fastest Responder</h4>
-                    <div className="text-lg font-bold text-white truncate">
+                </div >
+
+                {/* Fastest Responders Ranking */}
+                < div className="bg-slate-800/50 p-5 rounded-2xl border border-slate-700/50 flex flex-col h-[320px]" >
+                    <h4 className="text-slate-400 text-xs uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <Clock className="w-4 h-4 text-green-400" /> Fastest Responders
+                    </h4>
+                    <div className="overflow-y-auto pr-2 space-y-3 custom-scrollbar flex-1">
                         {Object.entries(data.responseTimes)
                             .filter(([, d]) => d.count > 5)
-                            .sort(([, a], [, b]) => (a.totalTime / a.count) - (b.totalTime / b.count))[0]?.[0] || 'N/A'}
+                            .map(([user, d]) => ({ user, avg: d.totalTime / d.count }))
+                            .sort((a, b) => a.avg - b.avg)
+                            .map((item, i) => (
+                                <div key={item.user} className="flex items-center justify-between p-2 hover:bg-slate-700/30 rounded-lg transition-colors">
+                                    <div className="flex items-center gap-3">
+                                        <span className={`text-xs font-mono w-5 h-5 flex items-center justify-center rounded-full ${i < 3 ? 'bg-green-500/20 text-green-300' : 'text-slate-500'}`}>
+                                            {i + 1}
+                                        </span>
+                                        <span className="text-sm text-slate-200 font-medium truncate max-w-[100px]">{item.user}</span>
+                                    </div>
+                                    <span className="text-sm font-bold text-slate-400">{(item.avg / 1000 / 60).toFixed(1)}m</span>
+                                </div>
+                            ))}
                     </div>
-                    <div className="text-xs text-slate-500 mt-1">Lowest avg response time</div>
-                </div>
-                <div className="bg-slate-800/50 p-4 rounded-2xl border border-slate-700/50">
-                    <h4 className="text-slate-400 text-xs uppercase tracking-wider mb-2">Media Addict</h4>
-                    <div className="text-lg font-bold text-white truncate">
-                        {Object.entries(data.mediaCount).sort(([, a], [, b]) => b - a)[0]?.[0] || 'N/A'}
+                </div >
+
+                {/* Media Addicts Ranking */}
+                < div className="bg-slate-800/50 p-5 rounded-2xl border border-slate-700/50 flex flex-col h-[320px]" >
+                    <h4 className="text-slate-400 text-xs uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <Users className="w-4 h-4 text-purple-400" /> Media Addicts
+                    </h4>
+                    <div className="overflow-y-auto pr-2 space-y-3 custom-scrollbar flex-1">
+                        {Object.entries(data.mediaCount)
+                            .sort(([, a], [, b]) => b - a)
+                            .map(([user, count], i) => (
+                                <div key={user} className="flex items-center justify-between p-2 hover:bg-slate-700/30 rounded-lg transition-colors">
+                                    <div className="flex items-center gap-3">
+                                        <span className={`text-xs font-mono w-5 h-5 flex items-center justify-center rounded-full ${i < 3 ? 'bg-purple-500/20 text-purple-300' : 'text-slate-500'}`}>
+                                            {i + 1}
+                                        </span>
+                                        <span className="text-sm text-slate-200 font-medium truncate max-w-[100px]">{user}</span>
+                                    </div>
+                                    <span className="text-sm font-bold text-slate-400">{count}</span>
+                                </div>
+                            ))}
                     </div>
-                    <div className="text-xs text-slate-500 mt-1">Shared most photos/videos</div>
-                </div>
-                <div className="bg-slate-800/50 p-4 rounded-2xl border border-slate-700/50">
-                    <h4 className="text-slate-400 text-xs uppercase tracking-wider mb-2">Vocabulary King/Queen</h4>
-                    <div className="text-lg font-bold text-white truncate">
-                        {Object.entries(data.vocabulary).sort(([, a], [, b]) => b.uniqueWords.size - a.uniqueWords.size)[0]?.[0] || 'N/A'}
+                </div >
+
+                {/* Vocabulary Ranking */}
+                < div className="bg-slate-800/50 p-5 rounded-2xl border border-slate-700/50 flex flex-col h-[320px]" >
+                    <h4 className="text-slate-400 text-xs uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <MessageSquare className="w-4 h-4 text-orange-400" /> Vocabulary
+                    </h4>
+                    <div className="overflow-y-auto pr-2 space-y-3 custom-scrollbar flex-1">
+                        {Object.entries(data.vocabulary)
+                            .sort(([, a], [, b]) => b.uniqueWords.size - a.uniqueWords.size)
+                            .map(([user, stats], i) => (
+                                <div key={user} className="flex items-center justify-between p-2 hover:bg-slate-700/30 rounded-lg transition-colors">
+                                    <div className="flex items-center gap-3">
+                                        <span className={`text-xs font-mono w-5 h-5 flex items-center justify-center rounded-full ${i < 3 ? 'bg-orange-500/20 text-orange-300' : 'text-slate-500'}`}>
+                                            {i + 1}
+                                        </span>
+                                        <span className="text-sm text-slate-200 font-medium truncate max-w-[100px]">{user}</span>
+                                    </div>
+                                    <span className="text-sm font-bold text-slate-400">{stats.uniqueWords.size}</span>
+                                </div>
+                            ))}
                     </div>
-                    <div className="text-xs text-slate-500 mt-1">Most unique words used</div>
+                </div >
+            </div >
+
+            {/* Interaction Matrix (Restored) */}
+            < motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="bg-slate-800/50 backdrop-blur-xl rounded-3xl p-6 border border-slate-700/50 shadow-xl"
+            >
+                <h3 className="text-lg font-semibold mb-6 text-slate-200 flex items-center gap-2">
+                    <Users className="w-5 h-5 text-pink-400" /> Top Interactions (Who replies to whom?)
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    {Object.entries(data.interactionMatrix)
+                        .flatMap(([author, replies]) =>
+                            Object.entries(replies).map(([repliedTo, count]) => ({ author, repliedTo, count }))
+                        )
+                        .sort((a, b) => b.count - a.count)
+                        .slice(0, 9)
+                        .map((pair, i) => (
+                            <div key={i} className="flex items-center justify-between bg-slate-900/50 p-3 rounded-xl border border-slate-700/50">
+                                <div className="flex items-center gap-2 text-sm truncate">
+                                    <span className="font-medium text-green-400 truncate max-w-[80px]">{pair.author}</span>
+                                    <span className="text-slate-500">→</span>
+                                    <span className="font-medium text-blue-400 truncate max-w-[80px]">{pair.repliedTo}</span>
+                                </div>
+                                <span className="text-slate-200 font-bold bg-slate-800 px-2 py-1 rounded-md text-xs">{pair.count}</span>
+                            </div>
+                        ))}
                 </div>
-            </div>
+            </motion.div >
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Topics */}
@@ -340,7 +429,7 @@ const Dashboard = ({ data }) => {
                     </div>
                 </motion.div>
             </div>
-        </div>
+        </div >
     );
 };
 
